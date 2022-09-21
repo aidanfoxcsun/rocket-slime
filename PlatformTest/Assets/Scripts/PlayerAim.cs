@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerAim : MonoBehaviour
 {
     private Transform aimTransform;
+    public SpriteRenderer muzzleFlash;
+
     public Transform barrelExit;
     public Transform player;
     public float shootForce = 50;
@@ -12,9 +14,13 @@ public class PlayerAim : MonoBehaviour
     public int ammoCount = 5;
 
     public GameObject AmmoPrefab;
+    public GameObject DeadEnemy;
+
+    public Vector3 deathOffset = new Vector3(0f, 0.5f, 0f);
 
     private void Awake(){
         aimTransform = transform.Find("Aim");
+        muzzleFlash.enabled = false;
 
     }
 
@@ -28,14 +34,15 @@ public class PlayerAim : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)){
             Shoot();
-            Debug.Log("Ammo: " + ammoCount);
+            StartCoroutine(MuzzleFlash());
+            //Debug.Log("Ammo: " + ammoCount);
         }
-
+/*
         if(Input.GetKeyDown(KeyCode.Q)){
             ammoCount = 5;
-            Debug.Log("Ammo: " + ammoCount);
+            //Debug.Log("Ammo: " + ammoCount);
         }
-
+*/
     }
 
     void Shoot(){
@@ -44,7 +51,8 @@ public class PlayerAim : MonoBehaviour
         if(ammoCount > 0){
             player.GetComponent<Rigidbody2D>().AddForce(-aimDirection * shootForce, ForceMode2D.Impulse );
             if(hit.collider.gameObject.tag == "Enemy" && hit.collider.gameObject != null){
-                Instantiate(AmmoPrefab, hit.transform.position, hit.transform.rotation);
+                Instantiate(AmmoPrefab, hit.transform.position, Quaternion.identity);
+                Instantiate(DeadEnemy, hit.transform.position + deathOffset,Quaternion.identity);
                 Destroy(hit.collider.gameObject);
             }
             ammoCount--;
@@ -56,5 +64,14 @@ public class PlayerAim : MonoBehaviour
 
     public void AmmoPickup(){
         ammoCount++;
+    }
+
+    IEnumerator MuzzleFlash(){
+        muzzleFlash.enabled = true;
+
+        yield return new WaitForSeconds(0.02f);
+
+        muzzleFlash.enabled = false;
+
     }
 }

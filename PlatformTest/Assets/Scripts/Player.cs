@@ -8,17 +8,25 @@ public class Player : MonoBehaviour
     private Scene scene;
     public Vector2 speed = new Vector2(50, 50);
     public GameObject player;
+    public Color bouncified;
+    private bool canMoveInAir;
+
     public LayerMask ground;
     public LayerMask enemy;
     public LayerMask exit;
+    public LayerMask bounce;
+
     public Transform topLeft;
     public Transform bottomRight;
 
     private float speedX;
+    private SpriteRenderer sr;
 
     void Awake(){
         speedX = speed.x;
         scene = SceneManager.GetActiveScene();
+        sr = GetComponent<SpriteRenderer>();
+        sr.color = Color.white;
     }
 
     void FixedUpdate(){
@@ -29,7 +37,10 @@ public class Player : MonoBehaviour
             SceneManager.LoadScene(scene.buildIndex+1);
 
         }
-        if(!IsGrounded()){
+        if(touchedBounce()){
+            canMoveInAir = true;
+        }
+        if(!IsGrounded() && canMoveInAir == false){
             speed.x = speed.x/1.5f;
         }
         else
@@ -49,10 +60,22 @@ public class Player : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.R)){
             SceneManager.LoadScene(scene.name);
         }
+        if(Input.GetKeyDown("escape")){
+            SceneManager.LoadScene(0);
+        }
+        if(canMoveInAir){
+            sr.color = bouncified;
+        }else{
+            sr.color = Color.white;
+        }
     }
 
     private bool IsGrounded() {
-        return Physics2D.OverlapArea(topLeft.position, bottomRight.position, ground);
+        if(Physics2D.OverlapArea(topLeft.position, bottomRight.position, ground)){
+            canMoveInAir = false;
+            return true;
+        }
+        return false;
     }
 
     private bool touchingEnemy(){
@@ -60,6 +83,9 @@ public class Player : MonoBehaviour
     }
     private bool touchingExit(){
         return Physics2D.OverlapArea(topLeft.position, bottomRight.position, exit);
+    }
+    private bool touchedBounce(){
+        return Physics2D.OverlapArea(topLeft.position, bottomRight.position, bounce);
     }
 
 }
