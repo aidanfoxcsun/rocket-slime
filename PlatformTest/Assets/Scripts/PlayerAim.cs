@@ -34,7 +34,6 @@ public class PlayerAim : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)){
             Shoot();
-            StartCoroutine(MuzzleFlash());
             //Debug.Log("Ammo: " + ammoCount);
         }
 /*
@@ -49,6 +48,7 @@ public class PlayerAim : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(barrelExit.transform.position, aimDirection);
         Debug.DrawRay(barrelExit.transform.position, aimDirection, Color.red);
         if(ammoCount > 0){
+            StartCoroutine(MuzzleFlash());
             player.GetComponent<Rigidbody2D>().AddForce(-aimDirection * shootForce, ForceMode2D.Impulse );
             if(hit.collider.gameObject.tag == "Enemy" && hit.collider.gameObject != null){
                 Instantiate(AmmoPrefab, hit.transform.position, Quaternion.identity);
