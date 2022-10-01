@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public class MainMenu : MonoBehaviour
 {
     public GameManager gm;
+    private AudioManager am;
     private int levelIndex = 1;
 
     public Dropdown dropdown;
@@ -14,6 +15,7 @@ public class MainMenu : MonoBehaviour
 
     void Awake(){
         gm.scene = 1;
+        am = AudioManager.instance;
 
     }
 
@@ -46,6 +48,10 @@ public class MainMenu : MonoBehaviour
 
     public void DropdownSelect(){
         levelIndex = dropdown.value + 1;
+    }
+
+    public void ToggleMusic(){
+        am.ToggleMusic();
     }
 
     
