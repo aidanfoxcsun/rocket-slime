@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
     public GameObject player;
     public Color bouncified;
     private bool canMoveInAir;
+    private bool showRestart;
 
     public LayerMask ground;
     public LayerMask enemy;
@@ -19,21 +20,31 @@ public class Player : MonoBehaviour
     public Transform topLeft;
     public Transform bottomRight;
 
+    private GameObject restartText;
+    public GameObject DeadPlayer;
+
     private float speedX;
     private SpriteRenderer sr;
 
     void Awake(){
+        restartText = GameObject.FindGameObjectWithTag("Restart");
+        restartText.SetActive(false);
         speedX = speed.x;
         scene = SceneManager.GetActiveScene();
         sr = GetComponent<SpriteRenderer>();
         sr.color = Color.white;
+        showRestart = false;
     }
-
     void FixedUpdate(){
         if(touchingEnemy()){
-            SceneManager.LoadScene(scene.name);
+            FindObjectOfType<AudioManager>().Play("Splat");
+            restartText.SetActive(true);
+            Instantiate(DeadPlayer, transform.position + new Vector3(0f,0.5f,0f),Quaternion.identity);
+            Destroy(this.gameObject);
+            //SceneManager.LoadScene(scene.name);
         }
         if(touchingExit()){
+            FindObjectOfType<AudioManager>().Play("NextLevel");
             SceneManager.LoadScene(scene.buildIndex+1);
 
         }
@@ -57,12 +68,27 @@ public class Player : MonoBehaviour
     }
 
     void Update(){
-        if(Input.GetKeyDown(KeyCode.R)){
+
+        if(this.gameObject.GetComponent<PlayerAim>().GetAmmoCount() <= 0){
+            StartCoroutine(WaitForRestartScreen());
+        }
+        if (showRestart == true){
+            if(this.gameObject.GetComponent<PlayerAim>().GetAmmoCount() <= 0){
+                restartText.SetActive(true);
+            }
+            else{
+                showRestart = false;
+            }
+        }
+
+
+        /*if(Input.GetKeyDown(KeyCode.R)){
             SceneManager.LoadScene(scene.name);
         }
         if(Input.GetKeyDown("escape")){
             SceneManager.LoadScene(0);
         }
+        */
         if(canMoveInAir){
             sr.color = bouncified;
         }else{
@@ -86,6 +112,13 @@ public class Player : MonoBehaviour
     }
     private bool touchedBounce(){
         return Physics2D.OverlapArea(topLeft.position, bottomRight.position, bounce);
+    }
+
+    IEnumerator WaitForRestartScreen(){
+        yield return new WaitForSeconds(5f);
+
+        showRestart = true;
+
     }
 
 }

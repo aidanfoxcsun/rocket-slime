@@ -18,6 +18,8 @@ public class PlayerAim : MonoBehaviour
 
     public Vector3 deathOffset = new Vector3(0f, 0.5f, 0f);
 
+    [SerializeField] private LayerMask layerMask;
+
     private void Awake(){
         aimTransform = transform.Find("Aim");
         muzzleFlash.enabled = false;
@@ -45,25 +47,32 @@ public class PlayerAim : MonoBehaviour
     }
 
     void Shoot(){
-        RaycastHit2D hit = Physics2D.Raycast(barrelExit.transform.position, aimDirection);
+        RaycastHit2D hit = Physics2D.Raycast(barrelExit.transform.position, aimDirection, 1000f, layerMask);
         Debug.DrawRay(barrelExit.transform.position, aimDirection, Color.red);
         if(ammoCount > 0){
+            FindObjectOfType<AudioManager>().Play("Explosion");
             StartCoroutine(MuzzleFlash());
             player.GetComponent<Rigidbody2D>().AddForce(-aimDirection * shootForce, ForceMode2D.Impulse );
             if(hit.collider.gameObject.tag == "Enemy" && hit.collider.gameObject != null){
                 Instantiate(AmmoPrefab, hit.transform.position, Quaternion.identity);
                 Instantiate(DeadEnemy, hit.transform.position + deathOffset,Quaternion.identity);
+                FindObjectOfType<AudioManager>().Play("Splat");
                 Destroy(hit.collider.gameObject);
             }
             ammoCount--;
         }
         else{
-            Debug.Log("Reload");
+            FindObjectOfType<AudioManager>().Play("Click");
         }
     }
 
     public void AmmoPickup(){
+        FindObjectOfType<AudioManager>().Play("Pickup");
         ammoCount++;
+    }
+
+    public int GetAmmoCount(){
+        return ammoCount;
     }
 
     IEnumerator MuzzleFlash(){
@@ -74,4 +83,6 @@ public class PlayerAim : MonoBehaviour
         muzzleFlash.enabled = false;
 
     }
+
+
 }

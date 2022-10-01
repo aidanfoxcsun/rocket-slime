@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Enemy
   - Ammo
+  - Restart
   layers:
   - Default
   - TransparentFX
@@ -16,7 +17,7 @@ TagManager:
   - Enemy
   - Exit
   - Bounce
-  - 
+  - Ammo
   - 
   - 
   - 

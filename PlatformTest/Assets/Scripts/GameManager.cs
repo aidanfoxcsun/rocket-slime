@@ -20,6 +20,15 @@ public class GameManager : MonoBehaviour
         instance = this;
     }
 
+    void Update(){
+        if(Input.GetKeyDown(KeyCode.R)){
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+        if(Input.GetKeyDown("escape")){
+            SceneManager.LoadScene(0);
+        }
+    }
+
     void Start(){
         scene = SceneManager.GetActiveScene().buildIndex;
         enemies = GameObject.FindGameObjectsWithTag("Enemy").Length;
